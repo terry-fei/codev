@@ -22,6 +22,9 @@ RUN git clone git://github.com/bwithem/oh-my-zsh.git ~/.oh-my-zsh \
     && chsh -s /bin/zsh
 RUN sed -i -E "s/^plugins=\((.*)\)$/plugins=(\1 tmux)/" ~/.zshrc
 
+# change timezone
+RUN echo "Asia/Shanghai" > /etc/timezone; 
+
 EXPOSE 22 80
 
 WORKDIR /codes

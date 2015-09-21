@@ -26,5 +26,4 @@ RUN echo "Asia/Shanghai" > /etc/timezone;
 
 EXPOSE 22 80
 
-WORKDIR /codes
 CMD ["/usr/sbin/sshd", "-D"]

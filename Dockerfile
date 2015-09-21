@@ -1,10 +1,12 @@
-FROM ubuntu
+FROM ubuntu:latest
 MAINTAINER feit "i@feit.me"
+
+# dependency
+RUN apt-get update && apt-get install -y curl zsh tmux openssh-server git build-essential
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-
-RUN apt-get install -y nodejs zsh tmux openssh-server git build-essential
+RUN apt-get install -y nodejs
 
 # config sshd
 RUN mkdir /var/run/sshd

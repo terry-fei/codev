@@ -2,8 +2,7 @@ FROM ubuntu:trusty
 MAINTAINER feit "i@feit.me"
 
 # dependency
-RUN echo "deb http://mirrors.aliyun.com/ubuntu trusty main universe" > /etc/apt/sources.list && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y curl zsh tmux openssh-server git build-essential
 
 # install nodejs

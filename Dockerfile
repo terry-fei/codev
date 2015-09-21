@@ -1,29 +1,34 @@
-FROM ubuntu:trusty
+FROM ubuntu
 MAINTAINER feit "i@feit.me"
 
-# dependency
-RUN apt-get update && \
-    apt-get install -y curl zsh tmux openssh-server git build-essential
+RUN apt-get update -qq && \
+    apt-get install -qqy openssh-server supervisor
 
-# install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash - && \
-    apt-get install -y nodejs
+RUN apt-get install -qqy --no-install-recommends samba \
+    $(apt-get -s dist-upgrade|awk '/^Inst.*ecurity/ {print $2}')
 
-# config sshd
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
+
+# not allow root login
 RUN mkdir /var/run/sshd && \
-    echo 'root:root' |chpasswd && \
-    sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config && \
     sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 
-# install and config oh-my-zsh
-RUN git clone git://github.com/bwithem/oh-my-zsh.git ~/.oh-my-zsh && \
-    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && \
-    chsh -s /bin/zsh && \
-    sed -i -E "s/^plugins=\((.*)\)$/plugins=(\1 tmux)/" ~/.zshrc
+# samba global config
+RUN useradd smbuser -M && \
+    sed -i 's|^\(   unix password sync = \).*|\1no|' /etc/samba/smb.conf && \
+    sed -i '/Share Definitions/,$d' /etc/samba/smb.conf && \
+    echo '   security = user' >> /etc/samba/smb.conf && \
+    echo '   directory mask = 0775' >> /etc/samba/smb.conf && \
+    echo '   force create mode = 0664' >> /etc/samba/smb.conf && \
+    echo '   force directory mode = 0775' >> /etc/samba/smb.conf && \
+    echo '   force user = smbuser' >> /etc/samba/smb.conf && \
+    echo '   force group = users' >> /etc/samba/smb.conf && \
+    echo '' >> /etc/samba/smb.conf
 
-# change timezone
-RUN echo "Asia/Shanghai" > /etc/timezone; 
+COPY boot.sh /usr/bin/
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+EXPOSE 22 139 445
 
-EXPOSE 22 80
-
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["boot.sh"]

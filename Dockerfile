@@ -2,7 +2,7 @@ FROM ubuntu
 MAINTAINER feit "i@feit.me"
 
 RUN apt-get update -qq && \
-    apt-get install -qqy openssh-server supervisor
+    apt-get install -qqy sudo openssh-server supervisor
 
 RUN apt-get install -qqy --no-install-recommends samba \
     $(apt-get -s dist-upgrade|awk '/^Inst.*ecurity/ {print $2}')

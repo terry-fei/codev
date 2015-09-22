@@ -1,11 +1,13 @@
+#!/usr/bin/env bash
 usage() {
   echo ""
 }
 
 createuser() { local name="${1}" passwd="${2}" \
                      project="${3}" file=/etc/samba/smb.conf
-  useradd "$name" -p "$passwd" -m
-  echo "$name ALL=(ALL) ALL" >> /etc/sudoers
+  useradd "$name" -m -s /bin/bash
+  echo "$name ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+  echo "$name:$passwd" | chpasswd
   echo "$passwd" | tee - | smbpasswd -s -a "$name"
   sed -i "/\\[$project\\]/,/^\$/d" $file
   echo "[$project]" >> $file

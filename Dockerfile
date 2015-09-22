@@ -13,6 +13,7 @@ RUN apt-get clean && \
 # not allow root login
 RUN mkdir /var/run/sshd && \
     sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config && \
+    sed -ri 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 
 # samba global config
@@ -31,4 +32,4 @@ COPY boot.sh /usr/bin/
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 EXPOSE 22 139 445
 
-CMD ["boot.sh"]
+ENTRYPOINT ["boot.sh"]
